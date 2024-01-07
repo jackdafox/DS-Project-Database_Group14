@@ -1,10 +1,9 @@
-package ds.project;
 
-import ds.project.Types.CharacterType;
-import ds.project.Types.CollectionType;
-import ds.project.Types.NumeralType;
-import ds.project.Types.StringType;
-import ds.project.Types.ValueFields;
+import Types.CharacterType;
+import Types.CollectionType;
+import Types.NumeralType;
+import Types.StringType;
+import Types.ValueFields;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,12 +17,18 @@ public class Tester {
     public static void main(String[] args) {
         Database database = new Database();
         Integer[] arr = {23, 4};
-        database.add("One", new StringType("Hisd"));
-        database.add("Three", new StringType("Hi"));
-        database.add("Four", new StringType("234"));
-        database.add("Two", new CollectionType(listConvert(arr)));
+//        database.add("123", new StringType("134"));
+//        database.add("12323", new StringType("134"));
+//        database.add("123423", new StringType("134"));
+//        database.add("12342345", new StringType("134"));
+//        database.add("12342334", new StringType("134"));
+        database.clear();
         database.display();
         database.toCSV("WOW.csv");
+        String[][] testingArr = database.displayGUI();
+//        for (int i = 0; i < testingArr.length; i++) {
+//        	System.out.println(testingArr[i][0] + " " + testingArr[i][1] + " " + testingArr[i][2]);
+//		}
     }
 
     public static <T> List<T> listConvert(T[] a) {

@@ -1,10 +1,8 @@
-package ds.project;
-
-import ds.project.Types.CharacterType;
-import ds.project.Types.CollectionType;
-import ds.project.Types.NumeralType;
-import ds.project.Types.StringType;
-import ds.project.Types.ValueFields;
+import Types.CharacterType;
+import Types.CollectionType;
+import Types.NumeralType;
+import Types.StringType;
+import Types.ValueFields;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +58,9 @@ public class Database {
     }
 
     public void display() {
+    	if(database.getKeys() == null) {
+    		return;
+    	}
         HashList<String> keyList = database.getKeys();
         for (String key : keyList) {
             ValueFields value = database.get(key);
@@ -83,8 +84,49 @@ public class Database {
             }
         }
     }
+    
+    public String[][] displayGUI() {
+    	if(database.getKeys() == null) {
+    		return null;
+    	}
+    	HashList<String> keyList = database.getKeys();
+    	String[][] output = new String[keyList.size()][3];
+    	for (int i = 0; i < output.length; i++) {
+    		ValueFields value = database.get(keyList.get(i));
+            switch (value.getType()) {
+                case ValueFields.STRING:
+                    StringType type1 = (StringType) value;
+                    output[i][0] = keyList.get(i);
+                    output[i][1] = type1.getType();
+                    output[i][2] = type1.getValue();
+                    break;
+                case ValueFields.CHARACTER:
+                    CharacterType type2 = (CharacterType) value;
+                    output[i][0] = keyList.get(i);
+                    output[i][1] = type2.getType();
+                    output[i][2] = String.valueOf(type2.getValue());
+                    break;
+                case ValueFields.NUMBER:
+                    NumeralType type3 = (NumeralType) value;
+                    output[i][0] = keyList.get(i);
+                    output[i][1] = type3.getType();
+                    output[i][2] = String.valueOf(type3.getValue());
+                    break;
+                case ValueFields.COLLECTION:
+                    CollectionType type4 = (CollectionType) value;
+                    output[i][0] = keyList.get(i);
+                    output[i][1] = type4.getType();
+                    output[i][2] = type4.getValue().toString();
+                    break;
+            }
+		}
+    	return output;
+    }
 
     public HashList<String> getCSV() {
+    	if(database.getKeys() == null) {
+    		return null;
+    	}
         HashList<String> keyList = database.getKeys();
         HashList<String> csv = new HashList<>();
         csv.add("Key,Value,Datatype");
@@ -113,6 +155,9 @@ public class Database {
     }
 
     public void toCSV(String name) {
+    	if(getCSV() == null) {
+    		return;
+    	}
         try {
             PrintWriter out = new PrintWriter(new File(name));
             HashList<String> csv = getCSV();

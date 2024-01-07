@@ -1,6 +1,4 @@
-package ds.project;
 
-import java.lang.reflect.Array;
 import java.util.Iterator;
 
 /**
@@ -72,6 +70,11 @@ public class HashList<E> implements Iterable<E> {
 
     public int size() {
         return size;
+    }
+    
+    public void clear() {
+        array = (E[]) new Object[array.length];
+        size = 0;
     }
 
     private void resizeArray() {

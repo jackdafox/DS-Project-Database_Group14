@@ -1,6 +1,8 @@
-package ds.project;
 
-import ds.project.Types.ValueFields;
+
+import java.util.Iterator;
+
+import Types.ValueFields;
 /**
  *
  * @dzxky_
@@ -41,7 +43,7 @@ public class DatabaseMap<K, V extends ValueFields> {
     }
 
     private int hash(K key) {
-        return key.hashCode() % capacity;
+        return Math.abs(key.hashCode()) % capacity;
     }
 
     public void put(K key, V value) {
@@ -110,10 +112,8 @@ public class DatabaseMap<K, V extends ValueFields> {
     }
     
     public void clear() {
-        for (int i = 0; i < hashList.size(); i++) {
-            remove(hashList.get(0));
-            hashList.remove(hashList.get(0));
-        }
+    	map = new Node[capacity];
+    	hashList = new HashList<>();
     }
 
     public void resize() {
@@ -153,6 +153,9 @@ public class DatabaseMap<K, V extends ValueFields> {
     }
     
     public HashList<K> getKeys() {
+    	if(hashList.isEmpty()) {
+    		return null;
+    	}
         return hashList;
     }
 }

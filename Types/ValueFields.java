@@ -1,6 +1,5 @@
-package ds.project.Types;
+package Types;
 
-import java.util.List;
 
 /**
  *
