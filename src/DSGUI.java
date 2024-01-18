@@ -236,13 +236,6 @@ public class DSGUI {
 
 		DataTypeSelector = new JComboBox<String>();
 		initDataTypes();
-		DataTypeSelector.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (DataTypeSelector.getSelectedItem().toString().contains("Collection")) {
-					valueTextField.setText("[]");
-				}
-			}
-		});
 
 		valueTextField = new JTextField();
 
@@ -302,23 +295,26 @@ public class DSGUI {
 						break;
 					case ValueFields.COLLECTIONSTRING:
 						CollectionStringType type5 = (CollectionStringType) value;
-						valueTextField.setText(type5.getValue().toString());
+						valueTextField.setText(type5.toString());
 						break;
 					case ValueFields.COLLECTIONBOOLEAN:
 						CollectionBooleanType type6 = (CollectionBooleanType) value;
-						valueTextField.setText(type6.getValue().toString());
+						valueTextField.setText(type6.toString());
 						break;
 					case ValueFields.COLLECTIONNUMBER:
 						CollectionNumeralType type7 = (CollectionNumeralType) value;
-						valueTextField.setText(type7.getValue().toString());
+						valueTextField.setText(type7.toString());
 						break;
 					case ValueFields.COLLECTIONCHARACTER:
 						CollectionCharacterType type8 = (CollectionCharacterType) value;
-						valueTextField.setText(type8.getValue().toString());
+						valueTextField.setText(type8.toString());
 						break;
 					}
 					UpdateButton.setEnabled(true);
 					DeleteButton.setEnabled(true);
+				}
+				else {
+					JOptionPane.showMessageDialog(jPanel1, "Index Doesn't Exist");
 				}
 			}
 		});
@@ -405,22 +401,21 @@ public class DSGUI {
 							.addGap(61)
 							.addGroup(gl_jPanel1.createParallelGroup(Alignment.TRAILING)
 								.addGroup(gl_jPanel1.createSequentialGroup()
-									.addGap(31)
+									.addPreferredGap(ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
 									.addComponent(jLabel5)
 									.addPreferredGap(ComponentPlacement.UNRELATED)
-									.addComponent(SearchTextField, GroupLayout.PREFERRED_SIZE, 319, GroupLayout.PREFERRED_SIZE)
-									.addGap(0, 0, Short.MAX_VALUE))
+									.addComponent(SearchTextField, GroupLayout.PREFERRED_SIZE, 319, GroupLayout.PREFERRED_SIZE))
 								.addGroup(gl_jPanel1.createSequentialGroup()
-									.addPreferredGap(ComponentPlacement.RELATED, 355, Short.MAX_VALUE)
+									.addPreferredGap(ComponentPlacement.RELATED, 371, Short.MAX_VALUE)
 									.addComponent(searchButton, GroupLayout.PREFERRED_SIZE, 117, GroupLayout.PREFERRED_SIZE)))
 							.addGap(44))))
 				.addGroup(gl_jPanel1.createSequentialGroup()
 					.addGap(39)
-					.addComponent(tablePane, GroupLayout.DEFAULT_SIZE, 999, Short.MAX_VALUE)
+					.addComponent(tablePane, GroupLayout.DEFAULT_SIZE, 1015, Short.MAX_VALUE)
 					.addContainerGap())
 				.addGroup(gl_jPanel1.createSequentialGroup()
 					.addGap(439)
-					.addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+					.addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
 					.addGap(374))
 		);
 		gl_jPanel1.setVerticalGroup(
