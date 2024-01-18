@@ -4,7 +4,6 @@ import Types.CollectionBooleanType;
 import Types.CollectionCharacterType;
 import Types.CollectionNumeralType;
 import Types.CollectionStringType;
-import Types.CollectionType;
 import Types.NumeralType;
 import Types.StringType;
 import Types.ValueFields;
