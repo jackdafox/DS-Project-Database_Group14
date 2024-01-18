@@ -18,11 +18,17 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.table.DefaultTableModel;
 
+import Types.BooleanType;
 import Types.CharacterType;
+import Types.CollectionBooleanType;
+import Types.CollectionCharacterType;
+import Types.CollectionNumeralType;
+import Types.CollectionStringType;
 import Types.CollectionType;
 import Types.NumeralType;
 import Types.StringType;
@@ -31,6 +37,7 @@ import Types.ValueFields;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Queue;
 import java.awt.event.ActionEvent;
@@ -38,6 +45,7 @@ import java.util.Date;
 import java.util.LinkedList;
 
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
@@ -51,7 +59,7 @@ public class DSGUI {
 	private JButton UpdateButton;
 	private JButton DeleteButton;
 	private JButton ClearButton;
-	private JComboBox<String> IDSelector;
+	private JTextField SearchTextField;
 	private JComboBox<String> DataTypeSelector;
 	private JLabel IDLabel;
 	private JLabel jLabel2;
@@ -61,11 +69,10 @@ public class DSGUI {
 	private JPanel jPanel1;
 	private JScrollPane tablePane;
 	private JTable table;
+	private JFileChooser fileChooser;
+	private FileNameExtensionFilter filter;
 
 	private Database database;
-	
-	private SimpleDateFormat formatter;
-	private Date date;
 	
 	private HashQueue<ValueFields> fieldsValue;
 	private final Action action = new SwingAction();
@@ -100,8 +107,6 @@ public class DSGUI {
 		database = new Database();
 		frame = new JFrame();
 		fieldsValue = new HashQueue<>(2);
-		formatter = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss");
-		date = new Date();
 		frame.setBounds(100, 100, 1064, 776);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -148,11 +153,15 @@ public class DSGUI {
 						JOptionPane.showMessageDialog(jPanel1, "Item Added!");
 					}
 					else {
+						fieldsValue.dequeue();
 						JOptionPane.showMessageDialog(jPanel1, "Already Existed!");
 					}
 				} else {
+					fieldsValue.dequeue();
 					JOptionPane.showMessageDialog(jPanel1, "Invalid Data! Please check your input.");
 				}
+				UpdateButton.setEnabled(false);
+				DeleteButton.setEnabled(false);
 			}
 		});
 		AddButton.setText("Add");
@@ -171,16 +180,20 @@ public class DSGUI {
 					String ID = idTextField.getText();
 					boolean validateResult = Validate.validate(dataType, value, fieldsValue);
 					if (validateResult == true) {
-						database.add(ID, fieldsValue.dequeue());
+						database.set(ID, fieldsValue.dequeue());
 						display();
-						JOptionPane.showMessageDialog(jPanel1, "Item Added!");
+						JOptionPane.showMessageDialog(jPanel1, "Item Updated!");
 					} else {
+						fieldsValue.dequeue();
 						JOptionPane.showMessageDialog(jPanel1, "Invalid Data! Please check your input.");
 					}
 					break;
 				case 1, 2:
 					break;
 				}
+				
+				UpdateButton.setEnabled(false);
+				DeleteButton.setEnabled(false);
 			}
 		});
 		UpdateButton.setText("Update");
@@ -201,6 +214,9 @@ public class DSGUI {
 				case 1, 2:
 					break;
 				}
+				
+				UpdateButton.setEnabled(false);
+				DeleteButton.setEnabled(false);
 			}
 		});
 		DeleteButton.setText("Delete");
@@ -233,10 +249,10 @@ public class DSGUI {
 		idTextField = new JTextField();
 
 		jLabel5 = new JLabel();
-		jLabel5.setText("Select by ID :");
+		jLabel5.setText("Search by ID :");
 		jLabel5.setFont(new Font("Dialog", Font.BOLD, 24));
 
-		IDSelector = new JComboBox<String>();
+		SearchTextField = new JTextField();
 
 //                // my own part
 //                HashSet<String> uniqueIds = new HashSet<String>();
@@ -261,12 +277,49 @@ public class DSGUI {
 		searchButton = new JButton();
 		searchButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ValueFields item = database.get(IDSelector.getSelectedItem().toString());
-				String value = valueConvert(item);
-
-				idTextField.setText(IDSelector.getSelectedItem().toString());
-				DataTypeSelector.setSelectedItem(item.getType());
-				valueTextField.setText(value);
+				String index = SearchTextField.getText();
+				if(database.contains(index)) {
+					ValueFields value = database.get(index);
+					JOptionPane.showMessageDialog(jPanel1, "Index Exists!");
+					idTextField.setText(index);
+					DataTypeSelector.setSelectedItem(value.getType());
+					switch(value.getType()) {
+					case ValueFields.STRING:
+						StringType type1 = (StringType) value;
+						valueTextField.setText(type1.getValue());
+						break;
+					case ValueFields.BOOLEAN:
+						BooleanType type2 = (BooleanType) value;
+						valueTextField.setText(type2.getValue().toString());
+						break;
+					case ValueFields.NUMBER:
+						NumeralType type3 = (NumeralType) value;
+						valueTextField.setText(type3.getValue().toString());
+						break;
+					case ValueFields.CHARACTER:
+						CharacterType type4 = (CharacterType) value;
+						valueTextField.setText(type4.getValue().toString());
+						break;
+					case ValueFields.COLLECTIONSTRING:
+						CollectionStringType type5 = (CollectionStringType) value;
+						valueTextField.setText(type5.getValue().toString());
+						break;
+					case ValueFields.COLLECTIONBOOLEAN:
+						CollectionBooleanType type6 = (CollectionBooleanType) value;
+						valueTextField.setText(type6.getValue().toString());
+						break;
+					case ValueFields.COLLECTIONNUMBER:
+						CollectionNumeralType type7 = (CollectionNumeralType) value;
+						valueTextField.setText(type7.getValue().toString());
+						break;
+					case ValueFields.COLLECTIONCHARACTER:
+						CollectionCharacterType type8 = (CollectionCharacterType) value;
+						valueTextField.setText(type8.getValue().toString());
+						break;
+					}
+					UpdateButton.setEnabled(true);
+					DeleteButton.setEnabled(true);
+				}
 			}
 		});
 		searchButton.setText("Search");
@@ -275,16 +328,49 @@ public class DSGUI {
 		JButton ExportCSV = new JButton();
 		ExportCSV.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				formatter = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss");
-				date = new Date();
-				String name = formatter.format(date) + ".csv";
-				database.toCSV(name);
-				JOptionPane.showMessageDialog(jPanel1, "Exported!");
+				filter = new FileNameExtensionFilter("TXT", "txt");
+				fileChooser = new JFileChooser();
+				fileChooser.setAcceptAllFileFilterUsed(false);
+				fileChooser.setFileFilter(filter);
+				fileChooser.setDialogTitle("Specify a file to save");
+				
+				int userSelection = fileChooser.showSaveDialog(fileChooser);
+				
+				if (userSelection == JFileChooser.APPROVE_OPTION) {
+				    database.toCSV(fileChooser.getSelectedFile());
+				    JOptionPane.showMessageDialog(jPanel1, "Exported!");
+				}
+//				formatter = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss");
+//				date = new Date();
+//				String name = formatter.format(date) + ".csv";
+//				database.toCSV(name);
 			}
 		});
 		ExportCSV.setAction(action);
-		ExportCSV.setText("Export to CSV");
+		ExportCSV.setText("Export to TXT");
 		ExportCSV.setFont(new Font("Dialog", Font.BOLD, 14));
+		
+		JButton ImportCSV = new JButton();
+		ImportCSV.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				filter = new FileNameExtensionFilter("TXT", "txt");
+				fileChooser = new JFileChooser();
+				fileChooser.setAcceptAllFileFilterUsed(false);
+				fileChooser.setFileFilter(filter);
+				fileChooser.setDialogTitle("Specify a file to import");
+				
+				int userSelection = fileChooser.showSaveDialog(fileChooser);
+				
+				if (userSelection == JFileChooser.APPROVE_OPTION) {
+					File file = fileChooser.getSelectedFile();
+				    database.importTXT(file.getAbsolutePath());
+				    JOptionPane.showMessageDialog(jPanel1, "Imported!");
+				}
+				display();
+			}
+		});
+		ImportCSV.setText("Import from TXT");
+		ImportCSV.setFont(new Font("Dialog", Font.BOLD, 14));
 		GroupLayout gl_jPanel1 = new GroupLayout(jPanel1);
 		gl_jPanel1.setHorizontalGroup(
 			gl_jPanel1.createParallelGroup(Alignment.TRAILING)
@@ -302,6 +388,8 @@ public class DSGUI {
 							.addComponent(ClearButton, GroupLayout.PREFERRED_SIZE, 117, GroupLayout.PREFERRED_SIZE)
 							.addGap(18)
 							.addComponent(ExportCSV, GroupLayout.PREFERRED_SIZE, 142, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(ImportCSV, GroupLayout.PREFERRED_SIZE, 156, GroupLayout.PREFERRED_SIZE)
 							.addContainerGap())
 						.addGroup(gl_jPanel1.createSequentialGroup()
 							.addGroup(gl_jPanel1.createParallelGroup(Alignment.LEADING)
@@ -314,13 +402,14 @@ public class DSGUI {
 									.addComponent(DataTypeSelector, Alignment.LEADING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 									.addComponent(valueTextField, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE))
 								.addComponent(idTextField, GroupLayout.PREFERRED_SIZE, 240, GroupLayout.PREFERRED_SIZE))
-							.addPreferredGap(ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
+							.addGap(61)
 							.addGroup(gl_jPanel1.createParallelGroup(Alignment.TRAILING)
 								.addGroup(gl_jPanel1.createSequentialGroup()
 									.addGap(31)
 									.addComponent(jLabel5)
 									.addPreferredGap(ComponentPlacement.UNRELATED)
-									.addComponent(IDSelector, 0, 312, Short.MAX_VALUE))
+									.addComponent(SearchTextField, GroupLayout.PREFERRED_SIZE, 319, GroupLayout.PREFERRED_SIZE)
+									.addGap(0, 0, Short.MAX_VALUE))
 								.addGroup(gl_jPanel1.createSequentialGroup()
 									.addPreferredGap(ComponentPlacement.RELATED, 355, Short.MAX_VALUE)
 									.addComponent(searchButton, GroupLayout.PREFERRED_SIZE, 117, GroupLayout.PREFERRED_SIZE)))
@@ -331,7 +420,7 @@ public class DSGUI {
 					.addContainerGap())
 				.addGroup(gl_jPanel1.createSequentialGroup()
 					.addGap(439)
-					.addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+					.addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
 					.addGap(374))
 		);
 		gl_jPanel1.setVerticalGroup(
@@ -343,7 +432,7 @@ public class DSGUI {
 					.addGroup(gl_jPanel1.createParallelGroup(Alignment.BASELINE)
 						.addComponent(valueLabel)
 						.addComponent(jLabel5)
-						.addComponent(IDSelector, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+						.addComponent(SearchTextField, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
 						.addComponent(valueTextField, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
 					.addGap(19)
 					.addGroup(gl_jPanel1.createParallelGroup(Alignment.BASELINE)
@@ -360,16 +449,23 @@ public class DSGUI {
 						.addComponent(DeleteButton, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
 						.addComponent(ClearButton, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
 						.addComponent(AddButton, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-						.addComponent(ExportCSV, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE))
+						.addComponent(ExportCSV, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+						.addComponent(ImportCSV, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(tablePane, GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
 					.addContainerGap())
 		);
-
+		
+		UpdateButton.setEnabled(false);
+		DeleteButton.setEnabled(false);
+		
 		table = new JTable();
+		table.putClientProperty(ExportCSV, gl_jPanel1);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				UpdateButton.setEnabled(true);
+				DeleteButton.setEnabled(true);
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				int index = table.getSelectedRow();
 
@@ -399,17 +495,16 @@ public class DSGUI {
 		}
 		for (int i = 0; i < valueArr.length; i++) {
 			df.addRow(valueArr[i]);
-			if (i == valueArr.length - 1) {
-				IDSelector.addItem(valueArr[i][0]);
-			}
 		}
 	}
 
 	private void initDataTypes() {
 		DataTypeSelector.addItem("String");
+		DataTypeSelector.addItem("Boolean");
 		DataTypeSelector.addItem("Numerical");
 		DataTypeSelector.addItem("Character");
 		DataTypeSelector.addItem("Collection(String)");
+		DataTypeSelector.addItem("Collection(Boolean)");
 		DataTypeSelector.addItem("Collection(Numerical)");
 		DataTypeSelector.addItem("Collection(Character)");
 	}
@@ -425,9 +520,21 @@ public class DSGUI {
 		case ValueFields.NUMBER:
 			NumeralType type3 = (NumeralType) value;
 			return (T) type3.getValue();
-		case ValueFields.COLLECTION:
-			CollectionType type4 = (CollectionType) value;
+		case ValueFields.COLLECTIONSTRING:
+			CollectionStringType type4 = (CollectionStringType) value;
 			return (T) type4.getValue();
+		case ValueFields.COLLECTIONBOOLEAN:
+			CollectionBooleanType type5 = (CollectionBooleanType) value;
+			return (T) type5.getValue();
+		case ValueFields.COLLECTIONNUMBER:
+			CollectionNumeralType type6 = (CollectionNumeralType) value;
+			return (T) type6.getValue();
+		case ValueFields.COLLECTIONCHARACTER:
+			CollectionCharacterType type7 = (CollectionCharacterType) value;
+			return (T) type7.getValue();
+		case ValueFields.BOOLEAN:
+			BooleanType type8 = (BooleanType) value;
+			return (T) type8.getValue();
 		}
 		return null;
 	}

@@ -11,7 +11,12 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
+import Types.BooleanType;
 import Types.CharacterType;
+import Types.CollectionBooleanType;
+import Types.CollectionCharacterType;
+import Types.CollectionNumeralType;
+import Types.CollectionStringType;
 import Types.CollectionType;
 import Types.NumeralType;
 import Types.StringType;
@@ -72,6 +77,18 @@ public class Validate {
 			result = true;
 			queue.enqueue(new StringType(value));
 			break;
+			
+		case "Boolean":
+			value = value.toLowerCase();
+			if(value.equals("true") || value.equals("false")) {
+				if(value.equals("true")) {
+					queue.enqueue(new BooleanType(true));
+				} else {
+					queue.enqueue(new BooleanType(false));
+				}
+				result = true;
+			}
+			break;
 
 		case "Character":
 			if (value.length() == 1 && Character.isLetter(value.charAt(0))) {
@@ -88,16 +105,32 @@ public class Validate {
 			}
 			String[] elementsString = value.split(",");
 			// Validate each element based on its data type
-			for (String element : elementsString) {
-				if (element.matches("[a-zA-Z]+") || element.matches(".*[a-zA-Z].*\\d.*")) {
-					result = true;
-				} else {
-					result = false;
-					break;
-				}
-			}
-			queue.enqueue(new CollectionType(listConvert(elementsString)));
+			result = true;
+			queue.enqueue(new CollectionStringType(listConvert(elementsString)));
 			break;
+		
+		case "Collection(Boolean)":
+			if (value.startsWith("[") && value.endsWith("]")) {
+				value = value.substring(1, value.length() - 1);
+			}
+			String[] elementsBoolean = value.split(",");
+			Boolean[] booleanArr = new Boolean[elementsBoolean.length];
+			for (int i = 0; i < elementsBoolean.length; i++) {
+				elementsBoolean[i] = elementsBoolean[i].toLowerCase();
+				if(elementsBoolean[i].equals("true") || elementsBoolean[i].equals("false")) {
+					if(elementsBoolean[i].equals("true")) {
+						booleanArr[i] = true;
+					} else {
+						booleanArr[i] = false;
+					}
+					result = true;
+					continue;
+				}
+				result = false;
+			}
+			queue.enqueue(new CollectionBooleanType(listConvert(booleanArr)));
+			break;
+			
 
 		case "Collection(Numerical)":
 			if (value.startsWith("[") && value.endsWith("]")) {
@@ -108,45 +141,44 @@ public class Validate {
 			int counter = 0;
 			// Validate each element based on its data type
 			for (int i = 0; i < elementsNumerical.length; i++) {
-				try {
-					// Double
-					double doubleValue = Double.parseDouble(elementsNumerical[i]);
-					result = true;
-					numberArr[i] = doubleValue;
-				} catch (NumberFormatException eDouble) {
-					try {
-						// Float
-						float floatValue = Float.parseFloat(elementsNumerical[i]);
-						result = true;
-						numberArr[i] = floatValue;
-					} catch (NumberFormatException eFloat) {
-						try {
-							// Long
-							double doubleValue = Double.parseDouble(elementsNumerical[i]);
-							long longValue;
-							if (elementsNumerical[i].endsWith("L") || elementsNumerical[i].endsWith("l")) {
-								value = elementsNumerical[i].substring(0, elementsNumerical[i].length() - 1);
-								longValue = Long.parseLong(value);
-							} else {
-								longValue = new BigInteger(elementsNumerical[i]).longValue();
-							}
-							numberArr[i] = longValue;
-							result = true;
-						} catch (NumberFormatException eLong) {
-							try {
-								// Int
-								int intValue = Integer.parseInt(elementsNumerical[i]);
-								numberArr[i] = intValue;
-								result = true;
-							} catch (NumberFormatException eInt) {
-								result = false;
-								break;
-							}
-						}
-					}
-				}
+			    try {
+			        // Int
+			        int intValue = Integer.parseInt(elementsNumerical[i]);
+			        result = true;
+			        numberArr[i] = intValue;
+			    } catch (NumberFormatException eInt) {
+			        try {
+			            // Long
+			            long longValue;
+			            if (elementsNumerical[i].endsWith("L") || elementsNumerical[i].endsWith("l")) {
+			                value = elementsNumerical[i].substring(0, elementsNumerical[i].length() - 1);
+			                longValue = Long.parseLong(elementsNumerical[i]);
+			            } else {
+			                longValue = Long.parseLong(elementsNumerical[i]);
+			            }
+			            numberArr[i] = longValue;
+			            result = true;
+			        } catch (NumberFormatException eLong) {
+			            try {
+			                // Float
+			                float floatValue = Float.parseFloat(elementsNumerical[i]);
+			                result = true;
+			                numberArr[i] = floatValue;
+			            } catch (NumberFormatException eFloat) {
+			                try {
+			                    // Double
+			                    double doubleValue = Double.parseDouble(elementsNumerical[i]);
+			                    numberArr[i] = doubleValue;
+			                    result = true;
+			                } catch (NumberFormatException eDouble) {
+			                    result = false;
+			                    break;
+			                }
+			            }
+			        }
+			    }
 			}
-			queue.enqueue(new CollectionType(listConvert(numberArr)));
+			queue.enqueue(new CollectionNumeralType(listConvert(numberArr)));
 			break;
 
 		case "Collection(Character)":
@@ -165,7 +197,7 @@ public class Validate {
 					break;
 				}
 			}
-			queue.enqueue(new CollectionType(listConvert(charArr)));
+			queue.enqueue(new CollectionCharacterType(listConvert(charArr)));
 			break;
 		}
 		return result;
